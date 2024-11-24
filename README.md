@@ -1,5 +1,6 @@
 # ComfyUI-MultiGPU
 
+
 ### Allows distributing ComfyUI VRAM requirements across multiple GPUs
 
 This extension adds new nodes for model loading that allow you to specify the GPU to use for each model.
@@ -27,4 +28,6 @@ The extension adds new loader nodes corresponding to the default ones. The new n
 
 ## Credits
 
-Forked from the original work of [Alexander Dzhoganov](https://github.com/AlexanderDzhoganov).
+Forked from the original work of [Alexander Dzhoganov](https://github.com/AlexanderDzhoganov)
+on the Comfyui-MultiGPU by neuratech-ai. (https://github.com/user-attachments/assets/f07b3c7d-01e9-471c-8ca7-78524b437c00)
+

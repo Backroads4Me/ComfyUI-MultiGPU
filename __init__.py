@@ -203,7 +203,7 @@ class CLIPLoaderMultiGPU:
             "required": {
                 "clip_name": (folder_paths.get_filename_list("clip"),),
                 "type": (
-                    ["stable_diffusion", "stable_cascade", "sd3", "stable_audio"],
+                    ["stable_diffusion", "stable_cascade", "sd3", "stable_audio", "mochi"],
                 ),
                 "device": ([f"cuda:{i}" for i in range(torch.cuda.device_count())],),
             }
@@ -223,6 +223,8 @@ class CLIPLoaderMultiGPU:
             clip_type = comfy.sd.CLIPType.SD3
         elif type == "stable_audio":
             clip_type = comfy.sd.CLIPType.STABLE_AUDIO
+        elif type == "stable_audio":
+            clip_type = comfy.sd.CLIPType.MOCHI
         else:
             clip_type = comfy.sd.CLIPType.STABLE_DIFFUSION
 
@@ -273,6 +275,46 @@ class DualCLIPLoaderMultiGPU:
         return (clip,)
 
 
+class TripleCLIPLoaderMultiGPU:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "clip_name1": (folder_paths.get_filename_list("clip"),),
+                "clip_name2": (folder_paths.get_filename_list("clip"),),
+                "clip_name3": (folder_paths.get_filename_list("clip"),),
+                "type": (["sdxl", "sd3", "flux"],),
+                "device": ([f"cuda:{i}" for i in range(torch.cuda.device_count())],),
+            }
+        }
+
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_clip(self, clip_name1, clip_name2, type, device):
+        global current_device
+        current_device = device
+
+        clip_path1 = folder_paths.get_full_path("clip", clip_name1)
+        clip_path2 = folder_paths.get_full_path("clip", clip_name2)
+        clip_path3 = folder_paths.get_full_path("clip", clip_name3)
+        if type == "sdxl":
+            clip_type = comfy.sd.CLIPType.STABLE_DIFFUSION
+        elif type == "sd3":
+            clip_type = comfy.sd.CLIPType.SD3
+        elif type == "flux":
+            clip_type = comfy.sd.CLIPType.FLUX
+
+        clip = comfy.sd.load_clip(
+            ckpt_paths=[clip_path1, clip_path2, clip_path3],
+            embedding_directory=folder_paths.get_folder_paths("embeddings"),
+            clip_type=clip_type,
+        )
+        return (clip,)
+
+
 NODE_CLASS_MAPPINGS = {
     "CheckpointLoaderMultiGPU": CheckpointLoaderMultiGPU,
     "UNETLoaderMultiGPU": UNETLoaderMultiGPU,
@@ -289,4 +331,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ControlNetLoaderMultiGPU": "Load ControlNet Model (Multi-GPU)",
     "CLIPLoaderMultiGPU": "Load CLIP (Multi-GPU)",
     "DualCLIPLoaderMultiGPU": "DualCLIPLoader (Multi-GPU)",
+    "TripleCLIPLoaderMultiGPU": "TripleCLIPLoader (Multi-GPU)",
 }
